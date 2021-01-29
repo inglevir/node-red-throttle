@@ -81,12 +81,11 @@ module.exports = function(RED) {
 
             // throttle by reset
             else if( node.throttleType === "reset" ) {
-                if( !node.reset ) {
+                if (msg.reset) {
+                    node.reset = false;
+                } else if( !node.reset ) {
                     node.reset = true;
                     node.send(msg);
-                }
-                else if( msg.reset ) {
-                    node.reset = false;
                 }
             }
 
