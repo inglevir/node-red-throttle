@@ -42,7 +42,10 @@ module.exports = function(RED) {
 
                 if( node.time + node.timeLimit < now ) {
                     node.time = now;
+                    node.status({text: "Passed", fill: "green"})
                     node.send(msg);
+                } else {
+                    node.status({text: "Blocked", fill: "red"})
                 }
             }
 
@@ -59,7 +62,10 @@ module.exports = function(RED) {
                 }
 
                 if( node.countLimit === 0 || node.countLimit === 1 || node.count === 1 ) {
+                    node.status({text: "Passed", fill: "green"})
                     node.send(msg);
+                } else {
+                    node.status({text: "Blocked", fill: "red"})
                 }
             }
 
@@ -69,13 +75,17 @@ module.exports = function(RED) {
                     return this.error("block size is not numeric", msg);
                 }
 
-                ++node.block;
-
-                if( node.block <= node.blockSize ) {
-                    node.send(msg);
-                }
-                else if( msg.reset ) {
+                if (msg.reset) {
                     node.block = 0;
+                    node.status({text: "Reset", fill: "yellow"})
+                } else {
+                    ++node.block;
+                    if (node.block <= node.blockSize) {
+                        node.status({text: "Passed", fill: "green"})
+                        node.send(msg);
+                    } else {
+                        node.status({text: "Blocked", fill: "red"})
+                    }
                 }
             }
 
@@ -83,9 +93,13 @@ module.exports = function(RED) {
             else if( node.throttleType === "reset" ) {
                 if (msg.reset) {
                     node.reset = false;
+                    node.status({text: "Reset", fill: "yellow"})
                 } else if( !node.reset ) {
                     node.reset = true;
+                    node.status({text: "Passed", fill: "green"})
                     node.send(msg);
+                } else {
+                    node.status({text: "Blocked", fill: "red"})
                 }
             }
 
